@@ -1,23 +1,58 @@
 <?php
-    if(isset($errorMsg)) {
-        foreach($errorMsg as $error) {
-?>
-        <div class="alert alert-danger">
-            <strong><?php echo $error; ?></strong>
-        </div>
-<?php
+
+    require_once 'connection.php';
+
+    session_start();
+
+    if(isset($_SESSION["user_login"])) {
+        header("location: welcome.php");
+    }
+
+    if(isset($_REQUEST['btn_login'])) {
+        $username =strip_tags($_REQUEST["txt_username_email"]); 
+        $email =strip_tags($_REQUEST["txt_username_email"]); 
+        $password =strip_tags($_REQUEST["txt_password"]); 
+
+        if(empty($username)) {
+            $errorMsg[]="please enter username or email"; 
+        }
+        else if(empty($email)) {
+            $errorMsg[]="please enter username or email";
+        }
+        else if(empty($password)) {
+            $errorMsg[]="please enter password";
+        }
+        else {
+            try {
+                $select_stmt=$conn->prepare("SELECT * FROM funcionario WHERE nome=:uname OR email=:uemail");
+                $select_stmt->execute(array(':uname'=>$username, ':uemail'=>$email)); 
+                $row=$select_stmt->fetch(PDO::FETCH_ASSOC);
+
+                if($select_stmt->rowCount() > 0) {
+                    if($username==$row["nome"] OR $email==$row["email"]) {
+                        if(password_verify($password, $row["senha"])) {
+                            $_SESSION["user_login"] = $row["id"];
+                            $loginMsg = "Successfully Login..."; 
+                            header("refresh:2; welcome.php"); 
+                        }
+                        else {
+                            $errorMsg[]="wrong password";
+                        }
+                    }
+                    else {
+                        $errorMsg[]="wrong username or email";
+                    }
+                }
+                else {
+                    $errorMsg[]="wrong username or email";
+                }
+            }
+            catch(PDOException $e) {
+                $e->getMessage();
+            }
         }
     }
-    if(isset($loginMsg)) {
 ?>
-        <div class="alert alert-success">
-            <strong><?php echo $loginMsg; ?></strong>
-        </div>
-<?php
-    }
-?>
-
-
 
 <!doctype html>
 <html lang="en">
@@ -31,6 +66,20 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
     <body>
+
+        <?php
+        if(isset($errorMsg)) {
+            foreach($errorMsg as $error) { ?>
+                <div class="alert alert-danger">
+                    <strong><?php echo $error; ?></strong>
+                </div> <?php
+            }
+        }
+        if(isset($loginMsg)) { ?>
+            <div class="alert alert-success">
+                <strong><?php echo $loginMsg; ?></strong>
+            </div> <?php
+        } ?>
 
         <form method="post" class="form-horizontal">
             <div class="form-group">
