@@ -11,7 +11,7 @@
     if(isset($_REQUEST['btn_login'])) {
         $username =strip_tags($_REQUEST["txt_username_email"]); 
         $email =strip_tags($_REQUEST["txt_username_email"]); 
-        $password =strip_tags($_REQUEST["txt_password"]); 
+        $password =strip_tags($_REQUEST["txt_password"]);  
 
         if(empty($username)) {
             $errorMsg[]="please enter username or email"; 
@@ -24,7 +24,7 @@
         }
         else {
             try {
-                $select_stmt=$conn->prepare("SELECT * FROM funcionario WHERE nome=:uname OR email=:uemail");
+                $select_stmt=$db->prepare("SELECT * FROM funcionario WHERE nome=:uname OR email=:uemail");
                 $select_stmt->execute(array(':uname'=>$username, ':uemail'=>$email)); 
                 $row=$select_stmt->fetch(PDO::FETCH_ASSOC);
 

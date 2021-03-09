@@ -19,16 +19,16 @@
             $errorMsg[]="Please enter password"; 
         }
         else if(strlen($password) < 6) {
-            $errorMsg[] = "Password must be atleast 6 characters";
+            $errorMsg[] = "Password must be at least 6 characters";
         }
         else {
             try {
-                $select_stmt=$db->prepare("SELECT username, email FROM tbl_user WHERE username=:uname 
+                $select_stmt=$db->prepare("SELECT nome, email FROM funcionario WHERE nome=:uname 
                                     OR email=:uemail"); 
                 $select_stmt->execute(array(':uname'=>$username, ':uemail'=>$email)); 
                 $row=$select_stmt->fetch(PDO::FETCH_ASSOC);
 
-                if($row["username"]==$username) {
+                if($row["nome"]==$username) {
                     $errorMsg[]="Sorry username already exists";
                 }
                 else if($row["email"]==$email) {
@@ -37,7 +37,7 @@
                 else if(!isset($errorMsg)) {
                     $new_password = password_hash($password, PASSWORD_DEFAULT);
 
-                    $insert_stmt=$db->prepare("INSERT INTO tbl_user (username,email,password) VALUES
+                    $insert_stmt=$db->prepare("INSERT INTO funcionario (nome,email,senha) VALUES
                                     (:uname,:uemail,:upassword)"); 
 
                     if($insert_stmt->execute(array( ':uname' =>$username,':uemail'=>$email,
